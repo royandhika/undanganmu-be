@@ -1,33 +1,34 @@
-// Controller ini akan memanggil service dan mengurus request & response.
-
-//     1 // src/api/users/user.controller.ts
-//     2 import { Request, Response } from 'express';
-//     3 import * as userService from './user.service.js';
-//     4
-//     5 export const getAllUsers = async (req: Request, res: Response) => {
-//     6   try {
-//     7     const users = await userService.findAllUsers();
-//     8     res.status(200).json(users);
-//     9   } catch (error: any) {
-//    10     res.status(500).json({ error: error.message });
-//    11   }
-//    12 };
-//    13
-//    14 // Nanti Anda bisa menambahkan controller lain di sini
-//    15 /*
-//    16 export const getUserById = async (req: Request, res: Response) => {
-//    17   // ...
-//    18 }
-//    19 */
-
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import * as userService from "./user.service.js";
+import z from "zod";
+import { createUserSchema } from "./user.validation.js";
 
+// CREATE READ UPDATE DELETE / GET POST PATCH PUT DELETE
 export const getAllUsers = async (req: Request, res: Response) => {
     try {
-        const users = await userService.findAllusers();
+        const users = await userService.findAll();
         res.status(200).json(users);
     } catch (error: any) {
         res.status(500).json({ error: error.message });
+    }
+};
+
+export const getUserById = async (req: Request, res: Response) => {
+    try {
+    } catch (error: any) {}
+};
+
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const validatedData = createUserSchema.parse(req.body);
+
+        const newUser = await userService.create(validatedData);
+
+        res.status(201).json({
+            success: true,
+            data: newUser,
+        });
+    } catch (error: any) {
+        next(error);
     }
 };

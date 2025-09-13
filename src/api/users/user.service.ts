@@ -1,29 +1,41 @@
-// Ini adalah layer terdalam yang berinteraksi langsung dengan Prisma.
-// 1 // src/api/users/user.service.ts
-// 2 import prisma from '../../db/prisma.js';
-// 3
-// 4 /**
-// 5  * Mengambil semua user dari database
-// 6  */
-// 7 export const findAllUsers = async () => {
-// 8   const users = await prisma.user.findMany();
-// 9   return users;
-// 10 };
-// 11
-// 12 // Nanti Anda bisa menambahkan fungsi lain di sini, contoh:
-// 13 /*
-// 14 export const findUserById = async (id: number) => {
-// 15   // ...
-// 16 }
-// 17
-// 18 export const createUser = async (userData: any) => {
-// 19   // ...
-// 20 }
-// 21 */
-
 import prisma from "../../db/prisma.js";
+import { CreateUserDto, UserDto, userSchema } from "./user.validation.js";
+import bcrypt from "bcrypt";
+import { ResponseError } from "../../utils/error.js";
 
-export const findAllusers = async () => {
+export const findAll = async () => {
     const users = await prisma.user.findMany();
     return users;
+};
+
+export const create = async (userData: CreateUserDto): Promise<UserDto> => {
+    const { email, password, name, phone } = userData;
+
+    const existingEmail = await prisma.user.findUnique({
+        where: { email },
+    });
+    if (existingEmail) {
+        throw new ResponseError(400, "Email already in use");
+    }
+
+    const existingPhone = await prisma.user.findUnique({
+        where: { phone },
+    });
+    if (existingPhone) {
+        throw new ResponseError(400, "Phone is already registered");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+        data: {
+            email,
+            password: hashedPassword,
+            name,
+            phone,
+        },
+    });
+
+    const response = userSchema.parse(newUser);
+    return response;
 };
