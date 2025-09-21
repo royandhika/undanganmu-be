@@ -1,6 +1,7 @@
 import pino from "pino";
 
 const developmentLogger = pino({
+    level: "debug",
     transport: {
         target: "pino-pretty",
         options: {
@@ -14,7 +15,7 @@ const productionLogger = pino({
     transport: {
         target: "pino/file",
         options: { destination: "../logs/app.log", mkdir: true },
-    }
+    },
 });
 
 const logger = process.env.NODE_ENV === "production" ? productionLogger : developmentLogger;
