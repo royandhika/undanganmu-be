@@ -18,6 +18,12 @@ enum Role {
     USER
 }
 
+enum Status {
+    PENDING
+    PAID
+    CANCELLED
+}
+
 model User {
     id        String    @id @default(cuid())
     name      String
@@ -29,7 +35,9 @@ model User {
     updatedAt DateTime  @updatedAt @map("updated_at")
     deletedAt DateTime? @map("deleted_at")
 
-    sessions Session[]
+    sessions     Session[]
+    invitations  Invitation[]
+    transactions Transaction[]
 
     @@map("users")
 }
@@ -42,7 +50,85 @@ model Session {
     createdAt    DateTime  @default(now()) @map("created_at")
     deletedAt    DateTime? @map("deleted_at")
 
-    users User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@map("sessions")
+}
+
+model Template {
+    id        String    @id @default(cuid())
+    name      String
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime  @updatedAt @map("updated_at")
+    deletedAt DateTime? @map("deleted_at")
+
+    invitations Invitation[]
+
+    @@map("templates")
+}
+
+model Invitation {
+    id          String    @id @default(cuid())
+    // transactionId String    @unique @map("transaction_id")
+    userId      String    @map("user_id")
+    templateId  String    @map("template_id")
+    weddingDate DateTime  @map("wedding_date")
+    address     String
+    message     String?
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+    deletedAt   DateTime? @map("deleted_at")
+
+    // transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+    user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    template Template @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+    guests   Guest[]
+    pictures Picture[]
+
+    @@map("invitations")
+}
+
+model Picture {
+    id           String    @id @default(cuid())
+    invitationId String    @map("invitation_id")
+    url          String
+    createdAt    DateTime  @default(now()) @map("created_at")
+    updatedAt    DateTime  @updatedAt @map("updated_at")
+    deletedAt    DateTime? @map("deleted_at")
+
+    invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+    @@map("pictures")
+}
+
+model Guest {
+    id           String    @id @default(cuid())
+    invitationId String    @map("invitation_id")
+    name         String
+    createdAt    DateTime  @default(now()) @map("created_at")
+    updatedAt    DateTime  @updatedAt @map("updated_at")
+    deletedAt    DateTime? @map("deleted_at")
+
+    invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+    @@map("guests")
+}
+
+model Transaction {
+    id          String    @id @default(cuid())
+    userId      String    @map("user_id")
+    totalAmount Float     @map("total_amount")
+    status      Status    @default(PENDING)
+    invoiceUrl  String?   @map("invoice_url")
+    xenditId    String?   @unique @map("xendit_id")
+    createdAt   DateTime  @default(now()) @map("created_at")
+    updatedAt   DateTime  @updatedAt @map("updated_at")
+    deletedAt   DateTime? @map("deleted_at")
+
+    users User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    // invitation Invitation?lee.
+
+    @@map("transactions")
 }
