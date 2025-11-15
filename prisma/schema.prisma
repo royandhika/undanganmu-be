@@ -16,12 +16,23 @@ datasource db {
 enum Role {
     ADMIN
     USER
+    RESELLER
 }
 
 enum Status {
     PENDING
     PAID
     CANCELLED
+}
+
+enum Type {
+    FREE
+    PREMIUM
+}
+
+enum PictureType {
+    PROFILE
+    GALLERY
 }
 
 model User {
@@ -56,8 +67,7 @@ model Session {
 }
 
 model Template {
-    id        String    @id @default(cuid())
-    name      String
+    id        String    @id
     createdAt DateTime  @default(now()) @map("created_at")
     updatedAt DateTime  @updatedAt @map("updated_at")
     deletedAt DateTime? @map("deleted_at")
@@ -68,16 +78,36 @@ model Template {
 }
 
 model Invitation {
-    id          String    @id @default(cuid())
+    id              String    @id @default(cuid())
     // transactionId String    @unique @map("transaction_id")
-    userId      String    @map("user_id")
-    templateId  String    @map("template_id")
-    weddingDate DateTime  @map("wedding_date")
-    address     String
-    message     String?
-    createdAt   DateTime  @default(now()) @map("created_at")
-    updatedAt   DateTime  @updatedAt @map("updated_at")
-    deletedAt   DateTime? @map("deleted_at")
+    userId          String    @map("user_id")
+    templateId      String    @map("template_id")
+    brideName       String?   @map("bride_name")
+    brideFather     String?   @map("bride_father")
+    brideMother     String?   @map("bride_mother")
+    brideIg         String?   @map("bride_ig")
+    groomName       String?   @map("groom_name")
+    groomFather     String?   @map("groom_father")
+    groomMother     String?   @map("groom_mother")
+    groomIg         String?   @map("groom_ig")
+    hashtag         String?
+    event1Name      String?   @map("event_1_name")
+    event1Date      DateTime? @map("event_1_date")
+    event1TimeStart String?   @map("event_1_time_start")
+    event1TimeEnd   String?   @map("event_1_time_end")
+    event1Address   String?   @map("event_1_address")
+    event2Name      String?   @map("event_2_name")
+    event2Date      DateTime? @map("event_2_date")
+    event2TimeStart String?   @map("event_2_time_start")
+    event2TimeEnd   String?   @map("event_2_time_end")
+    event2Address   String?   @map("event_2_address")
+    loveStory       String?   @map("love_story")
+    type            Type      @default(FREE)
+    isActive        Boolean   @default(false) @map("is_active")
+    expiresAt       DateTime? @map("expires_at")
+    createdAt       DateTime  @default(now()) @map("created_at")
+    updatedAt       DateTime  @updatedAt @map("updated_at")
+    deletedAt       DateTime? @map("deleted_at")
 
     // transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
     user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -90,12 +120,13 @@ model Invitation {
 }
 
 model Picture {
-    id           String    @id @default(cuid())
-    invitationId String    @map("invitation_id")
+    id           String       @id @default(cuid())
+    invitationId String       @map("invitation_id")
     url          String
-    createdAt    DateTime  @default(now()) @map("created_at")
-    updatedAt    DateTime  @updatedAt @map("updated_at")
-    deletedAt    DateTime? @map("deleted_at")
+    pictureType  PictureType? @default(GALLERY) @map("picture_type")
+    createdAt    DateTime     @default(now()) @map("created_at")
+    updatedAt    DateTime     @updatedAt @map("updated_at")
+    deletedAt    DateTime?    @map("deleted_at")
 
     invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
 
