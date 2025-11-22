@@ -13,3 +13,16 @@ export const getMyInvitation = async (req: Request, res: Response, next: NextFun
         next(err);
     }
 };
+
+export const editInvitation = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const updatedInvitation = await invitationService.editInvitation(req.params.id, req.body);
+
+        res.status(200).json({
+            success: true,
+            data: updatedInvitation,
+        });
+    } catch (err: any) {
+        next(err);
+    }
+};

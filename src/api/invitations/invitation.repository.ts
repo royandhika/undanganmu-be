@@ -1,5 +1,5 @@
 import prisma from "../../db/prisma.js";
-import { CreateInvitationDto } from "./invitation.validation.js";
+import { CreateInvitationDto, UpdateInvitationDto } from "./invitation.validation.js";
 
 export const createFree = (invitationData: CreateInvitationDto) => {
     return prisma.invitation.create({
@@ -21,7 +21,7 @@ export const findByUserId = (userId: string) => {
     });
 };
 
-export const update = (id: string, invitationData: Partial<CreateInvitationDto>) => {
+export const update = (id: string, invitationData: UpdateInvitationDto) => {
     return prisma.invitation.update({
         where: { id },
         data: {

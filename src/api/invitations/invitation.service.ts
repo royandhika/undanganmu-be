@@ -1,14 +1,16 @@
-import { CreateInvitationDto, createInvitationSchema } from "./invitation.validation.js";
+import { CreateInvitationDto, createInvitationSchema, UpdateInvitationDto, updateInvitationSchema } from "./invitation.validation.js";
 import * as invitationRepository from "../invitations/invitation.repository.js";
 import { ResponseError } from "../../utils/error.js";
 
-export const editInvitation = async (id: string, invitationData: CreateInvitationDto): Promise<CreateInvitationDto> => {
+export const editInvitation = async (id: string, invitationData: UpdateInvitationDto): Promise<CreateInvitationDto> => {
     const invitationExist = invitationRepository.findById(id);
     if (!invitationExist) {
         throw new ResponseError(404, "Invitation not found");
     }
 
-    const invitationParsedData = createInvitationSchema.parse(invitationData);
+    invitationData.event1Date = new Date(invitationData.event1Date!);
+    invitationData.event2Date = new Date(invitationData.event2Date!);
+    const invitationParsedData = updateInvitationSchema.parse(invitationData);
     const updatedInvitation = await invitationRepository.update(id, invitationParsedData);
     return updatedInvitation;
 };
